@@ -1,0 +1,25 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Users.UserEditViewModel
+
+@{
+    ViewData["Title"] = "Редактирование учетной записи";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Редактирование учетной записи",
+             ["IntroText"] = "Обновите имя, роль, статус доступа или задайте новый пароль для пользователя.",
+             ["BackAction"] = "Index",
+             ["SectionTitle"] = "Данные пользователя",
+             ["SectionSubtitle"] = "Логин неизменяем, но остальные параметры можно корректировать без пересоздания учетной записи.",
+             ["FormAction"] = "Edit",
+             ["FormPartial"] = "_UserEditFields",
+             ["SubmitText"] = "Сохранить изменения",
+             ["CancelAction"] = "Index",
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

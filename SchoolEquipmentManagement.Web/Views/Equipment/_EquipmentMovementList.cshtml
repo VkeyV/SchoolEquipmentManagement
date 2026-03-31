@@ -1,0 +1,58 @@
+@using System.Linq
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentDetailsViewModel
+
+@{
+    var variant = (ViewData["Variant"] as string ?? "lane").ToLowerInvariant();
+    var maxItems = ViewData["MaxItems"] as int? ?? 6;
+    var emptyMessage = ViewData["EmptyMessage"] as string ?? "События пока не зафиксированы.";
+}
+
+@if (Model.Movements.Any())
+{
+    if (variant == "timeline")
+    {
+        <div class="timeline-list">
+            @foreach (var movement in Model.Movements.Take(maxItems))
+            {
+                <article class="timeline-item">
+                    <div class="timeline-item-top">
+                        <div class="timeline-item-meta">
+                            <span class="badge @movement.BadgeClass">@movement.EventName</span>
+                            <span>@movement.DisplayOccurredAt</span>
+                        </div>
+                        <span class="timeline-item-user">@movement.DisplayChangedBy</span>
+                    </div>
+                    <div class="timeline-item-title">@movement.Summary</div>
+                    @if (movement.HasDetails)
+                    {
+                        <div class="timeline-item-text">@movement.DisplayDetails</div>
+                    }
+                </article>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="movement-lane">
+            @foreach (var movement in Model.Movements.Take(maxItems))
+            {
+                <article class="movement-lane-card">
+                    <div class="movement-lane-top">
+                        <span class="badge @movement.BadgeClass">@movement.EventName</span>
+                        <span>@movement.DisplayOccurredAt</span>
+                    </div>
+                    <div class="movement-lane-title">@movement.Summary</div>
+                    @if (movement.HasDetails)
+                    {
+                        <div class="movement-lane-text">@movement.DisplayDetails</div>
+                    }
+                    <div class="movement-lane-user">@movement.DisplayChangedBy</div>
+                </article>
+            }
+        </div>
+    }
+}
+else
+{
+    <div class="text-muted">@emptyMessage</div>
+}

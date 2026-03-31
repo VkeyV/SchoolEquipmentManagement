@@ -1,0 +1,25 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Inventory.InventorySessionCreateViewModel
+
+@{
+    ViewData["Title"] = "Новая сессия инвентаризации";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Новая сессия инвентаризации",
+             ["IntroText"] = "Укажите понятное название и дату начала проверки.",
+             ["BackAction"] = "Index",
+             ["SectionTitle"] = "Параметры сессии",
+             ["SectionSubtitle"] = "Название поможет отличать сессии между собой, а дата начала задаст точку отсчета проверки.",
+             ["FormAction"] = "Create",
+             ["FormPartial"] = "_InventoryCreateFields",
+             ["SubmitText"] = "Создать сессию",
+             ["CancelAction"] = "Index",
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,26 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentCreateViewModel
+
+@{
+    ViewData["Title"] = "Добавление оборудования";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Добавление оборудования",
+             ["IntroText"] = "Заполните карточку нового оборудования. Обязательные поля проверяются до сохранения, а введенные данные не теряются при ошибках.",
+             ["BackAction"] = "Index",
+             ["SectionTitle"] = "Новая карточка",
+             ["SectionSubtitle"] = "Основные сведения, даты эксплуатации и ответственные данные.",
+             ["FormAction"] = "Create",
+             ["FormEnctype"] = "multipart/form-data",
+             ["FormPartial"] = "_EquipmentFormFields",
+             ["SubmitText"] = "Сохранить",
+             ["CancelAction"] = "Index",
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

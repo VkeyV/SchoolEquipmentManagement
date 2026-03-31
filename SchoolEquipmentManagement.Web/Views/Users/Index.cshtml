@@ -1,0 +1,110 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Users.UserIndexViewModel
+
+@{
+    ViewData["Title"] = "Учетные записи";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Учетные записи</h1>
+    <p class="page-intro">Управляйте доступом сотрудников к системе: создавайте учетные записи, назначайте роли, указывайте почту для восстановления доступа и включайте 2FA.</p>
+    <div class="hero-actions">
+        <a asp-action="Create" class="btn btn-primary">Добавить пользователя</a>
+    </div>
+</section>
+
+<partial name="_OperationAlerts" />
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Сводка по доступу</h2>
+            <div class="surface-card-subtitle">Быстрый обзор активных, отключенных и временно заблокированных учетных записей.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Всего: <strong>@Model.TotalCount</strong></span>
+            <span>Активных: <strong>@Model.ActiveCount</strong></span>
+            <span>Отключено: <strong>@Model.InactiveCount</strong></span>
+            <span>Заблокировано: <strong>@Model.LockedCount</strong></span>
+        </div>
+    </div>
+</section>
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Список пользователей</h2>
+            <div class="surface-card-subtitle">Логины, почта, роли и текущее состояние доступа.</div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Логин</th>
+                    <th>Имя</th>
+                    <th>Почта</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>2FA</th>
+                    <th>Безопасность</th>
+                    <th>Создана</th>
+                    <th>Обновлена</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.UserName</td>
+                            <td>@item.DisplayName</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Email) ? "Не указана" : item.Email)</td>
+                            <td>@item.RoleDisplayName</td>
+                            <td>
+                                <span class="badge @(item.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                    @(item.IsActive ? "Активна" : "Отключена")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @(item.TwoFactorEnabled ? "text-bg-info" : "text-bg-light")">
+                                    @(item.TwoFactorEnabled ? "Включена" : "Выключена")
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.IsLockedOut)
+                                {
+                                    <div class="fw-semibold text-danger">Заблокирована до @item.LockoutEndUtc!.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                                }
+                                else if (item.LastSignInAt.HasValue)
+                                {
+                                    <div>Последний вход: @item.LastSignInAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                                }
+                                else
+                                {
+                                    <div class="text-muted">Входов пока не было</div>
+                                }
+                            </td>
+                            <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@(item.UpdatedAt.HasValue ? item.UpdatedAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "Без изменений")</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Изменить</a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-5">
+                            <div class="fw-semibold mb-2">Пользователи пока не созданы</div>
+                            <div class="text-muted">Добавьте первую учетную запись, чтобы выдать доступ сотруднику.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

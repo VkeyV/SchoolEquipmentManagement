@@ -1,0 +1,25 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentDetailsViewModel
+
+<div class="status-stack">
+    <div class="status-panel">
+        <span class="status-label">Жизненный цикл</span>
+        <span class="badge @Model.LifecycleBadgeClass">@Model.LifecycleStage</span>
+        <p>@Model.LifecycleSummary</p>
+    </div>
+    <div class="status-panel">
+        <span class="status-label">Гарантийный статус</span>
+        <span class="badge @Model.WarrantyBadgeClass">@Model.WarrantyStatus</span>
+        <p>@Model.WarrantySummary</p>
+        <div class="mt-2">
+            <span class="badge @Model.WarrantyRiskBadgeClass">Риск: @Model.WarrantyRisk</span>
+        </div>
+    </div>
+    <div class="status-panel">
+        <span class="status-label">Ответственность и размещение</span>
+        <p>@Model.OwnershipSummary</p>
+    </div>
+    <div class="status-panel">
+        <span class="status-label">Последняя инвентаризация</span>
+        <p>@Model.LastInventorySummary</p>
+    </div>
+</div>

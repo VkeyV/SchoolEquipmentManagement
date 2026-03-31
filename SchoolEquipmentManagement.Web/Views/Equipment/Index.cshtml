@@ -1,0 +1,189 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentIndexViewModel
+
+@{
+    ViewData["Title"] = "Реестр оборудования";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Реестр оборудования</h1>
+    <p class="page-intro">В этом разделе можно найти оборудование, открыть карточку объекта, проверить гарантийный риск и при необходимости добавить новую запись.</p>
+    <div class="hero-actions">
+        <a asp-action="Issues" class="btn btn-outline-danger">Проблемные объекты</a>
+        <a asp-action="WarrantyReport" class="btn btn-outline-secondary">Отчет по гарантиям</a>
+        @if (Model.CanCreate)
+        {
+            <a asp-action="Create" class="btn btn-primary">Добавить оборудование</a>
+        }
+        @if (Model.CanImport)
+        {
+            <a asp-action="Import" class="btn btn-outline-secondary">Импорт CSV</a>
+        }
+    </div>
+</section>
+
+<partial name="_OperationAlerts" />
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Фильтры и поиск</h2>
+            <div class="surface-card-subtitle">Подберите нужное оборудование по номеру, типу, статусу, местоположению и гарантийному интервалу.</div>
+        </div>
+        <div class="metric-helper">Найдено записей: <strong>@Model.TotalCount</strong></div>
+    </div>
+
+    <form method="get" class="row g-3">
+        <div class="col-lg-3">
+            <label class="form-label" for="search">Поиск</label>
+            <input id="search" type="text" name="search" value="@Model.Search" class="form-control" placeholder="Инвентарный номер или наименование" />
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label" for="typeId">Тип</label>
+            <select id="typeId" name="typeId" class="form-select" asp-items="Model.EquipmentTypes">
+                <option value="">Все типы</option>
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label" for="statusId">Статус</label>
+            <select id="statusId" name="statusId" class="form-select" asp-items="Model.EquipmentStatuses">
+                <option value="">Все статусы</option>
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label" for="locationId">Местоположение</label>
+            <select id="locationId" name="locationId" class="form-select" asp-items="Model.Locations">
+                <option value="">Все местоположения</option>
+            </select>
+        </div>
+        <div class="col-lg-2">
+            <label class="form-label" for="warrantyFilter">Гарантия</label>
+            <select id="warrantyFilter" name="warrantyFilter" class="form-select" asp-items="Model.WarrantyFilters"></select>
+        </div>
+        <div class="col-lg-1 d-grid">
+            <label class="form-label d-none d-lg-block">&nbsp;</label>
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+        @if (Model.HasFilters)
+        {
+            <div class="col-12">
+                <a asp-action="Index" class="btn btn-outline-secondary">Сбросить фильтры</a>
+            </div>
+        }
+    </form>
+</section>
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Активы в реестре</h2>
+            <div class="surface-card-subtitle">Показаны записи @Model.StartItem-@Model.EndItem из @Model.TotalCount.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Всего: <strong>@Model.TotalCount</strong></span>
+            <span>Страница: <strong>@Model.Page / @Model.TotalPages</strong></span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Инвентарный номер</th>
+                    <th>Наименование</th>
+                    <th>Тип</th>
+                    <th>Статус</th>
+                    <th>Местоположение</th>
+                    <th>Гарантия / риск</th>
+                    <th>Ответственный</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.InventoryNumber</td>
+                            <td>@item.Name</td>
+                            <td>@item.EquipmentType</td>
+                            <td><span class="badge @item.StatusBadgeClass">@item.Status</span></td>
+                            <td>
+                                <a asp-controller="Locations" asp-action="Details" asp-route-id="@item.LocationId" class="link-primary fw-semibold text-decoration-none">
+                                    @item.Location
+                                </a>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@item.DisplayWarrantyEndDate</div>
+                                <div class="small mt-1"><span class="badge @item.WarrantyRiskBadgeClass">@item.WarrantyRisk</span></div>
+                                <div class="text-muted small mt-1">@item.WarrantySummary</div>
+                            </td>
+                            <td>@item.DisplayResponsiblePerson</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Открыть</a>
+                                    @if (Model.CanCreate)
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Изменить</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="fw-semibold mb-2">По заданным условиям оборудование не найдено</div>
+                            <div class="text-muted">Попробуйте изменить фильтры или сбросить текущую выборку.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4" aria-label="Навигация по страницам">
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.IsFirstPage ? "disabled" : null)">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-search="@Model.Search"
+                       asp-route-typeId="@Model.TypeId"
+                       asp-route-statusId="@Model.StatusId"
+                       asp-route-locationId="@Model.LocationId"
+                       asp-route-warrantyFilter="@Model.WarrantyFilter"
+                       asp-route-page="@Model.PreviousPage">Назад</a>
+                </li>
+
+                @for (var currentPage = 1; currentPage <= Model.TotalPages; currentPage++)
+                {
+                    <li class="page-item @(currentPage == Model.Page ? "active" : null)">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-typeId="@Model.TypeId"
+                           asp-route-statusId="@Model.StatusId"
+                           asp-route-locationId="@Model.LocationId"
+                           asp-route-warrantyFilter="@Model.WarrantyFilter"
+                           asp-route-page="@currentPage">@currentPage</a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.IsLastPage ? "disabled" : null)">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-search="@Model.Search"
+                       asp-route-typeId="@Model.TypeId"
+                       asp-route-statusId="@Model.StatusId"
+                       asp-route-locationId="@Model.LocationId"
+                       asp-route-warrantyFilter="@Model.WarrantyFilter"
+                       asp-route-page="@Model.NextPage">Вперед</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</section>

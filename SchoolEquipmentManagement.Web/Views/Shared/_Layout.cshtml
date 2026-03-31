@@ -1,0 +1,131 @@
+@using SchoolEquipmentManagement.Web.Security
+@inject IUserAccessService UserAccess
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Учет IT-оборудования</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty);
+        var currentAction = (ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty);
+
+        string NavState(string controller, string? action = null)
+        {
+            var controllerMatch = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
+            var actionMatch = action is null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase);
+            return controllerMatch && actionMatch ? "nav-link active" : "nav-link";
+        }
+    }
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="container">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <div class="container-fluid px-2">
+                        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                            <span class="brand-mark" aria-hidden="true">IT</span>
+                            <span class="brand-copy">
+                                <span class="brand-title">Учет IT-оборудования</span>
+                                <span class="brand-subtitle">единая операционная среда для школы</span>
+                            </span>
+                        </a>
+
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation" aria-expanded="false" aria-label="Переключить навигацию">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <div class="collapse navbar-collapse topbar-navigation" id="mainNavigation">
+                            <ul class="navbar-nav topbar-links me-auto mb-3 mb-lg-0">
+                                <li class="nav-item">
+                                    <a class="@NavState("Home", "Index")" asp-controller="Home" asp-action="Index">Главная</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="@NavState("Equipment")" asp-controller="Equipment" asp-action="Index">Оборудование</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="@NavState("Inventory")" asp-controller="Inventory" asp-action="Index">Инвентаризация</a>
+                                </li>
+                                <li class="nav-item">
+                                    <span class="nav-link nav-link-muted">Заявки</span>
+                                </li>
+                                <li class="nav-item">
+                                    <span class="nav-link nav-link-muted">Отчеты</span>
+                                </li>
+                            </ul>
+
+                            <div class="topbar-actions">
+                                @if (User.Identity?.IsAuthenticated ?? false)
+                                {
+                                    @if (UserAccess.HasPermission(ModulePermission.ManageUsers))
+                                    {
+                                        <a asp-controller="Users" asp-action="Index" class="btn btn-sm btn-outline-primary">Учетные записи</a>
+                                    }
+                                    @if (UserAccess.HasPermission(ModulePermission.ViewSecurityAudit))
+                                    {
+                                        <a asp-controller="Security" asp-action="Index" class="btn btn-sm btn-outline-primary">Аудит</a>
+                                    }
+                                    <div class="role-switch">
+                                        <div class="role-switch-copy">
+                                            <label>@UserAccess.CurrentDisplayName</label>
+                                            <span>@UserAccess.CurrentRoleDisplayName</span>
+                                        </div>
+                                        <form asp-controller="Auth" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">Выйти</button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-sm btn-outline-primary">Войти</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="container content-wrap">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="footer-shell">
+            <div class="container">
+                <div class="footer-panel">
+                    <div class="footer-compact">
+                        <div class="footer-brand-block">
+                            <div class="footer-eyebrow">School IT Operations</div>
+                            <div class="footer-brand">Учет IT-оборудования</div>
+                            <div class="footer-note footer-note-strong">Единая рабочая среда для реестра оборудования, истории изменений и инвентаризационных сессий.</div>
+                        </div>
+
+                        <div class="footer-compact-links">
+                            <a asp-controller="Home" asp-action="Index" class="footer-link">Главная</a>
+                            <a asp-controller="Equipment" asp-action="Index" class="footer-link">Реестр</a>
+                            <a asp-controller="Inventory" asp-action="Index" class="footer-link">Инвентаризация</a>
+                        </div>
+                    </div>
+
+                    <div class="footer-bottom">
+                        <div class="footer-note">&copy; @DateTime.Now.Year Учет IT-оборудования. Платформа для управления жизненным циклом школьной IT-инфраструктуры.</div>
+                        <div class="footer-note text-lg-end">Реестр, карточки объектов и инвентаризация в одном интерфейсе.</div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

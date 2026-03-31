@@ -1,0 +1,77 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Inventory.InventorySessionIndexViewModel
+
+@{
+    ViewData["Title"] = "Инвентаризация";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Инвентаризация</h1>
+    <p class="page-intro">В этом разделе создаются и открываются сессии проверки оборудования.</p>
+    <div class="hero-actions">
+        @if (Model.CanCreateSession)
+        {
+            <a asp-action="Create" class="btn btn-primary">Новая сессия</a>
+        }
+    </div>
+</section>
+
+<partial name="_OperationAlerts" />
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Сессии инвентаризации</h2>
+            <div class="surface-card-subtitle">Текущие и завершенные проверки оборудования.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Всего сессий: <strong>@Model.Sessions.Count</strong></span>
+        </div>
+    </div>
+
+    @if (Model.Sessions.Any())
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Сессия</th>
+                        <th>Статус</th>
+                        <th>Дата начала</th>
+                        <th>Проверено</th>
+                        <th>Найдено</th>
+                        <th>Не найдено</th>
+                        <th>С расхождениями</th>
+                        <th class="text-center">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Sessions)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@item.Name</div>
+                                <div class="text-muted small">Создал: @item.CreatedBy</div>
+                            </td>
+                            <td><span class="badge @item.StatusBadgeClass">@item.Status</span></td>
+                            <td>@item.StartDate.ToString("dd.MM.yyyy")</td>
+                            <td>@item.CheckedCount</td>
+                            <td>@item.FoundCount</td>
+                            <td>@item.MissingCount</td>
+                            <td>@item.DiscrepancyCount</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Открыть</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="py-4">
+            <div class="fw-semibold mb-2">Сессии инвентаризации пока не созданы</div>
+            <div class="text-muted">Создайте первую сессию, чтобы начать проверку фактического наличия оборудования.</div>
+        </div>
+    }
+</section>

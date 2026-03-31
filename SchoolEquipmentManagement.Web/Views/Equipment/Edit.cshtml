@@ -1,0 +1,29 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentEditViewModel
+
+@{
+    ViewData["Title"] = "Редактирование оборудования";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Редактирование оборудования",
+             ["IntroText"] = "Здесь можно обновить сведения об оборудовании, не теряя историю изменений и служебный контекст.",
+             ["BackAction"] = "Details",
+             ["BackRouteId"] = Model.Id,
+             ["SectionTitle"] = "Редактируемая карточка",
+             ["SectionSubtitle"] = "Все изменения будут отражены в истории оборудования.",
+             ["FormAction"] = "Edit",
+             ["FormEnctype"] = "multipart/form-data",
+             ["HiddenFieldsPartial"] = "_EquipmentEditHiddenFields",
+             ["FormPartial"] = "_EquipmentFormFields",
+             ["SubmitText"] = "Сохранить изменения",
+             ["CancelAction"] = "Details",
+             ["CancelRouteId"] = Model.Id,
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

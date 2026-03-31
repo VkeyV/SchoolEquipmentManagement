@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="content-stack home-ops">
+    <section class="hero-panel home-ops-hero">
+        <h1 class="display-title">Учет IT-оборудования</h1>
+        <p class="page-intro">
+            Рабочая среда для ведения реестра оборудования, инвентаризации,
+            проверки состояния объектов и подготовки паспортов.
+        </p>
+
+        <div class="hero-actions">
+            <a asp-controller="Equipment" asp-action="Index" class="btn btn-primary">Реестр оборудования</a>
+            <a asp-controller="Inventory" asp-action="Index" class="btn btn-outline-primary">Инвентаризация</a>
+            <a asp-controller="Equipment" asp-action="Create" class="btn btn-outline-secondary">Добавить оборудование</a>
+        </div>
+    </section>
+
+    <section class="home-ops-grid">
+        <a asp-controller="Equipment" asp-action="Index" class="home-ops-card">
+            <span class="home-ops-label">Реестр</span>
+            <strong>Карточки оборудования</strong>
+            <p>Поиск, фильтрация, статусы, местоположение и ответственные лица.</p>
+        </a>
+
+        <a asp-controller="Inventory" asp-action="Index" class="home-ops-card">
+            <span class="home-ops-label">Инвентаризация</span>
+            <strong>Проверка наличия</strong>
+            <p>Сессии проверки, фиксация найденных объектов и расхождений.</p>
+        </a>
+
+        <a asp-controller="Equipment" asp-action="Create" class="home-ops-card">
+            <span class="home-ops-label">Паспорта</span>
+            <strong>Работа с объектами</strong>
+            <p>Создание, редактирование, печать паспорта, смена статуса и перемещение.</p>
+        </a>
+    </section>
+</div>

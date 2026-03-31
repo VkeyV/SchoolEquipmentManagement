@@ -1,0 +1,400 @@
+@using System.Linq
+@model SchoolEquipmentManagement.Web.ViewModels.Locations.LocationDetailsViewModel
+
+@{
+    ViewData["Title"] = "Карточка локации";
+    var initialMarker = Model.MapMarkers.FirstOrDefault();
+}
+
+<section class="hero-panel hero-panel-compact">
+    <div class="hero-panel-content">
+        <div>
+            <h1 class="display-title">@Model.Name</h1>
+            <p class="page-intro">Карточка локации показывает состав оборудования, сводку по статусам, интерактивный план и последние инвентаризационные расхождения внутри кабинета, склада или корпуса.</p>
+        </div>
+        <div class="hero-panel-meta">
+            <span>Последняя проверка</span>
+            <strong>@Model.DisplayLastInventoryCheckedAt</strong>
+            <small>Локация @Model.Id</small>
+        </div>
+    </div>
+
+    <div class="inline-summary">
+        <span>Корпус: <strong>@Model.Building</strong></span>
+        <span>Помещение: <strong>@Model.Room</strong></span>
+        <span>Оборудование: <strong>@Model.EquipmentCount</strong></span>
+        <span>Расхождения: <strong>@Model.DiscrepancyCount</strong></span>
+        <span>Не найдено: <strong>@Model.MissingCount</strong></span>
+    </div>
+</section>
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Описание локации</h2>
+            <div class="surface-card-subtitle">Базовая информация по помещению или складской зоне.</div>
+        </div>
+    </div>
+    <p class="mb-0">@Model.DisplayDescription</p>
+</section>
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Интерактивный план</h2>
+            <div class="surface-card-subtitle">MVP-схема локации: кликните на объект, чтобы увидеть его состояние и быстро открыть карточку.</div>
+        </div>
+        <div class="metric-helper">Маркеров: <strong>@Model.MapMarkers.Count</strong></div>
+    </div>
+
+    @if (Model.HasInteractiveMap && initialMarker is not null)
+    {
+        <div class="location-map-layout">
+            <div class="location-map-shell">
+                <div class="location-map-legend">
+                    <span><i class="location-map-legend-dot is-active"></i> В работе</span>
+                    <span><i class="location-map-legend-dot is-service"></i> Сервис</span>
+                    <span><i class="location-map-legend-dot is-storage"></i> Резерв</span>
+                    <span><i class="location-map-legend-dot is-warning"></i> Найдено в другой точке</span>
+                    <span><i class="location-map-legend-dot is-missing"></i> Не найдено</span>
+                    <span><i class="location-map-legend-dot is-discovered"></i> Найдено здесь с расхождением</span>
+                </div>
+
+                <div class="location-map-board" role="region" aria-label="Интерактивная схема локации">
+                    @foreach (var zone in Model.MapZones)
+                    {
+                        <div class="location-map-zone @zone.AccentClass" style="@zone.InlineStyle">
+                            <div class="location-map-zone-title">@zone.Title</div>
+                            <div class="location-map-zone-caption">@zone.Caption</div>
+                        </div>
+                    }
+
+                    @for (var i = 0; i < Model.MapMarkers.Count; i++)
+                    {
+                        var marker = Model.MapMarkers[i];
+                        var isSelected = i == 0;
+                        <button type="button"
+                                class="location-map-marker @marker.MarkerClass @(isSelected ? "is-selected" : null)"
+                                style="@marker.InlineStyle"
+                                data-location-marker
+                                data-equipment-id="@marker.EquipmentId"
+                                data-name="@marker.Name"
+                                data-inventory="@marker.InventoryNumber"
+                                data-type="@marker.EquipmentType"
+                                data-status="@marker.Status"
+                                data-state="@marker.StateLabel"
+                                data-summary="@marker.Summary"
+                                data-responsible="@marker.DisplayResponsiblePerson"
+                                data-discrepancy-title="@marker.DiscrepancyTitle"
+                                data-expected="@marker.DisplayExpectedLocation"
+                                data-actual="@marker.DisplayActualLocation"
+                                data-is-discrepancy="@(marker.IsDiscrepancy ? "true" : "false")"
+                                title="@marker.InventoryNumber - @marker.Name">
+                            <span>@marker.ShortLabel</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <aside class="location-map-inspector" data-location-inspector>
+                <div class="location-map-inspector-label">Выбранный объект</div>
+                <h3 data-inspector-name>@initialMarker.Name</h3>
+                <div class="location-map-inspector-meta">
+                    <span data-inspector-inventory>@initialMarker.InventoryNumber</span>
+                    <span data-inspector-state>@initialMarker.StateLabel</span>
+                </div>
+
+                <dl class="detail-list location-map-detail-list">
+                    <div class="detail-item">
+                        <dt>Тип</dt>
+                        <dd data-inspector-type>@initialMarker.EquipmentType</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Статус</dt>
+                        <dd data-inspector-status>@initialMarker.Status</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Ответственный</dt>
+                        <dd data-inspector-responsible>@initialMarker.DisplayResponsiblePerson</dd>
+                    </div>
+                    <div class="detail-item" data-inspector-discrepancy-row @(initialMarker.IsDiscrepancy ? null : "hidden")>
+                        <dt>Расхождение</dt>
+                        <dd data-inspector-discrepancy>@(initialMarker.DiscrepancyTitle ?? "Нет")</dd>
+                    </div>
+                    <div class="detail-item" data-inspector-expected-row @(initialMarker.IsDiscrepancy ? null : "hidden")>
+                        <dt>Ожидалось</dt>
+                        <dd data-inspector-expected>@initialMarker.DisplayExpectedLocation</dd>
+                    </div>
+                    <div class="detail-item" data-inspector-actual-row @(initialMarker.IsDiscrepancy ? null : "hidden")>
+                        <dt>Фактически</dt>
+                        <dd data-inspector-actual>@initialMarker.DisplayActualLocation</dd>
+                    </div>
+                </dl>
+
+                <div class="location-map-note" data-inspector-summary>@initialMarker.Summary</div>
+
+                <div class="hero-actions">
+                    <a class="btn btn-primary" data-inspector-details href="@Url.Action("Details", "Equipment", new { id = initialMarker.EquipmentId })">Открыть карточку</a>
+                    @if (Model.CanChangeStatus)
+                    {
+                        <a class="btn btn-outline-secondary" data-inspector-status-link href="@Url.Action("ChangeStatus", "Equipment", new { id = initialMarker.EquipmentId })">Сменить статус</a>
+                    }
+                    @if (Model.CanAssignResponsible)
+                    {
+                        <a class="btn btn-outline-secondary" data-inspector-assign-link href="@Url.Action("AssignResponsible", "Equipment", new { id = initialMarker.EquipmentId, returnUrl = Context.Request.Path })">Назначить ответственного</a>
+                    }
+                </div>
+            </aside>
+        </div>
+    }
+    else
+    {
+        <div class="text-muted">Для этой локации пока недостаточно данных, чтобы показать интерактивную схему.</div>
+    }
+</section>
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Сводка по статусам</h2>
+            <div class="surface-card-subtitle">Текущее распределение оборудования по статусам внутри локации.</div>
+        </div>
+        <div class="metric-helper">Всего статусов: <strong>@Model.StatusSummary.Count</strong></div>
+    </div>
+
+    @if (Model.StatusSummary.Any())
+    {
+        <div class="row g-3">
+            @foreach (var item in Model.StatusSummary)
+            {
+                <div class="col-md-6 col-xl-3">
+                    <div class="surface-card h-100">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div>
+                                <div class="text-muted small mb-2">Статус</div>
+                                <div class="fw-semibold">@item.StatusName</div>
+                            </div>
+                            <span class="badge @item.BadgeClass">@item.Count</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-muted">В этой локации пока нет закрепленного оборудования.</div>
+    }
+</section>
+
+<section class="table-shell mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Оборудование в локации</h2>
+            <div class="surface-card-subtitle">Полный список объектов, закрепленных за текущим кабинетом, складом или зоной размещения.</div>
+        </div>
+        <div class="metric-helper">Позиции: <strong>@Model.EquipmentItems.Count</strong></div>
+    </div>
+
+    @if (Model.HasEquipment)
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Инвентарный номер</th>
+                        <th>Наименование</th>
+                        <th>Тип</th>
+                        <th>Статус</th>
+                        <th>Ответственный</th>
+                        <th>Гарантия</th>
+                        <th>Последняя инвентаризация</th>
+                        <th class="text-center">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.EquipmentItems)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.InventoryNumber</td>
+                            <td>@item.Name</td>
+                            <td>@item.EquipmentType</td>
+                            <td><span class="badge @item.StatusBadgeClass">@item.Status</span></td>
+                            <td>@item.DisplayResponsiblePerson</td>
+                            <td>
+                                <div class="fw-semibold">@item.DisplayWarrantyEndDate</div>
+                                <div class="small mt-1"><span class="badge @item.WarrantyRiskBadgeClass">@item.WarrantyRisk</span></div>
+                            </td>
+                            <td>
+                                <div>@item.LastInventoryStatus</div>
+                                <div class="text-muted small mt-1">@item.DisplayLastInventoryCheckedAt, @item.DisplayLastInventoryCheckedBy</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a asp-controller="Equipment" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Карточка</a>
+                                    @if (Model.CanChangeStatus)
+                                    {
+                                        <a asp-controller="Equipment" asp-action="ChangeStatus" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Статус</a>
+                                    }
+                                    @if (Model.CanAssignResponsible)
+                                    {
+                                        <a asp-controller="Equipment" asp-action="AssignResponsible" asp-route-id="@item.Id" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-secondary">Ответственный</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-muted">Закрепленного оборудования в этой локации пока нет.</div>
+    }
+</section>
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Инвентаризационные расхождения</h2>
+            <div class="surface-card-subtitle">Здесь собраны объекты, которые не найдены в локации, выбили из нее или были обнаружены здесь с расхождением по карточке.</div>
+        </div>
+        <div class="metric-helper">Проблемных позиций: <strong>@Model.InventoryDiscrepancies.Count</strong></div>
+    </div>
+
+    @if (Model.HasInventoryDiscrepancies)
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Инвентарный номер</th>
+                        <th>Наименование</th>
+                        <th>Тип</th>
+                        <th>Статус</th>
+                        <th>Расхождение</th>
+                        <th>Ожидалось</th>
+                        <th>Фактически</th>
+                        <th>Последняя проверка</th>
+                        <th class="text-center">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.InventoryDiscrepancies)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.InventoryNumber</td>
+                            <td>
+                                <div class="fw-semibold">@item.Name</div>
+                                <div class="text-muted small mt-1">@item.DiscrepancySummary</div>
+                                @if (!string.IsNullOrWhiteSpace(item.ConditionComment))
+                                {
+                                    <div class="text-muted small mt-1">Комментарий: @item.DisplayConditionComment</div>
+                                }
+                            </td>
+                            <td>@item.EquipmentType</td>
+                            <td><span class="badge @item.StatusBadgeClass">@item.Status</span></td>
+                            <td><span class="badge @item.DiscrepancyBadgeClass">@item.DiscrepancyTitle</span></td>
+                            <td>@item.ExpectedLocation</td>
+                            <td>@item.DisplayActualLocation</td>
+                            <td>
+                                <div>@item.DisplayCheckedAt</div>
+                                <div class="text-muted small mt-1">@item.DisplayCheckedBy</div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                    <a asp-controller="Equipment" asp-action="Details" asp-route-id="@item.EquipmentId" class="btn btn-sm btn-outline-primary">Карточка</a>
+                                    @if (Model.CanChangeStatus)
+                                    {
+                                        <a asp-controller="Equipment" asp-action="ChangeStatus" asp-route-id="@item.EquipmentId" class="btn btn-sm btn-outline-secondary">Статус</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-muted">По последним проверкам расхождения для этой локации не зафиксированы.</div>
+    }
+</section>
+
+<script>
+    (function () {
+        const markers = Array.from(document.querySelectorAll('[data-location-marker]'));
+        const inspector = document.querySelector('[data-location-inspector]');
+
+        if (!markers.length || !inspector) {
+            return;
+        }
+
+        const fields = {
+            name: inspector.querySelector('[data-inspector-name]'),
+            inventory: inspector.querySelector('[data-inspector-inventory]'),
+            state: inspector.querySelector('[data-inspector-state]'),
+            type: inspector.querySelector('[data-inspector-type]'),
+            status: inspector.querySelector('[data-inspector-status]'),
+            responsible: inspector.querySelector('[data-inspector-responsible]'),
+            discrepancy: inspector.querySelector('[data-inspector-discrepancy]'),
+            expected: inspector.querySelector('[data-inspector-expected]'),
+            actual: inspector.querySelector('[data-inspector-actual]'),
+            summary: inspector.querySelector('[data-inspector-summary]'),
+            discrepancyRow: inspector.querySelector('[data-inspector-discrepancy-row]'),
+            expectedRow: inspector.querySelector('[data-inspector-expected-row]'),
+            actualRow: inspector.querySelector('[data-inspector-actual-row]'),
+            detailsLink: inspector.querySelector('[data-inspector-details]'),
+            statusLink: inspector.querySelector('[data-inspector-status-link]'),
+            assignLink: inspector.querySelector('[data-inspector-assign-link]')
+        };
+
+        const updateRow = (row, valueField, value, show) => {
+            if (!row || !valueField) {
+                return;
+            }
+
+            row.hidden = !show;
+            valueField.textContent = value || 'Нет данных';
+        };
+
+        const selectMarker = (marker) => {
+            markers.forEach(item => item.classList.toggle('is-selected', item === marker));
+
+            const id = marker.dataset.equipmentId;
+            const hasDiscrepancy = marker.dataset.isDiscrepancy === 'true';
+
+            fields.name.textContent = marker.dataset.name || '';
+            fields.inventory.textContent = marker.dataset.inventory || '';
+            fields.state.textContent = marker.dataset.state || '';
+            fields.type.textContent = marker.dataset.type || '';
+            fields.status.textContent = marker.dataset.status || '';
+            fields.responsible.textContent = marker.dataset.responsible || 'Не указано';
+            fields.summary.textContent = marker.dataset.summary || '';
+
+            updateRow(fields.discrepancyRow, fields.discrepancy, marker.dataset.discrepancyTitle, hasDiscrepancy);
+            updateRow(fields.expectedRow, fields.expected, marker.dataset.expected, hasDiscrepancy);
+            updateRow(fields.actualRow, fields.actual, marker.dataset.actual, hasDiscrepancy);
+
+            if (fields.detailsLink) {
+                fields.detailsLink.href = `/Equipment/Details/${id}`;
+            }
+
+            if (fields.statusLink) {
+                fields.statusLink.href = `/Equipment/ChangeStatus/${id}`;
+            }
+
+            if (fields.assignLink) {
+                fields.assignLink.href = `/Equipment/AssignResponsible/${id}?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+            }
+        };
+
+        markers.forEach(marker => {
+            marker.addEventListener('click', () => selectMarker(marker));
+        });
+
+        selectMarker(markers[0]);
+    })();
+</script>

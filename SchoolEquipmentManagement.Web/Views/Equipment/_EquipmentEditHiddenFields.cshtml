@@ -1,0 +1,6 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentCreateViewModel
+
+@if (Model is SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentEditViewModel editModel)
+{
+    <input type="hidden" name="Id" value="@editModel.Id" />
+}

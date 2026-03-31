@@ -1,0 +1,25 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Users.UserCreateViewModel
+
+@{
+    ViewData["Title"] = "Новая учетная запись";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Новая учетная запись",
+             ["IntroText"] = "Создайте пользователя, задайте ему роль и первичный пароль для входа в систему.",
+             ["BackAction"] = "Index",
+             ["SectionTitle"] = "Параметры доступа",
+             ["SectionSubtitle"] = "Логин используется для входа, отображаемое имя показывается в интерфейсе.",
+             ["FormAction"] = "Create",
+             ["FormPartial"] = "_UserCreateFields",
+             ["SubmitText"] = "Создать учетную запись",
+             ["CancelAction"] = "Index",
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

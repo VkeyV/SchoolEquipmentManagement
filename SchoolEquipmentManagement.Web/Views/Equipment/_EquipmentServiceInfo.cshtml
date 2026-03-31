@@ -1,0 +1,47 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentDetailsViewModel
+
+@{
+    var showNotes = ViewData["ShowNotes"] as bool? ?? false;
+}
+
+<dl class="detail-list">
+    <div class="detail-item">
+        <dt>Дата покупки</dt>
+        <dd>@Model.DisplayPurchaseDate</dd>
+    </div>
+    <div class="detail-item">
+        <dt>Ввод в эксплуатацию</dt>
+        <dd>@Model.DisplayCommissioningDate</dd>
+    </div>
+    <div class="detail-item">
+        <dt>Дата окончания гарантии</dt>
+        <dd>@Model.DisplayWarrantyEndDate</dd>
+    </div>
+    <div class="detail-item">
+        <dt>Производитель</dt>
+        <dd>@Model.DisplayManufacturer</dd>
+    </div>
+    <div class="detail-item">
+        <dt>Модель</dt>
+        <dd>@Model.DisplayModel</dd>
+    </div>
+    <div class="detail-item">
+        <dt>Серийный номер</dt>
+        <dd>@Model.DisplaySerialNumber</dd>
+    </div>
+</dl>
+
+@if (showNotes)
+{
+    <div class="service-note-block">
+        <div class="service-note-title">Примечание</div>
+        @if (string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="text-muted">Примечание не добавлено.</div>
+        }
+        else
+        {
+            <div class="notes-content">@Model.DisplayNotes</div>
+        }
+    </div>
+}

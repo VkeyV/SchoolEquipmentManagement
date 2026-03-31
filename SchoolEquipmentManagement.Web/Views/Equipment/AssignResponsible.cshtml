@@ -1,0 +1,67 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentAssignResponsibleViewModel
+
+@{
+    ViewData["Title"] = "Назначить ответственного";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Назначить ответственного</h1>
+    <p class="page-intro">Быстрое действие для обновления ответственного лица по проблемному объекту без перехода в полное редактирование карточки.</p>
+    <div class="hero-actions">
+        <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-outline-secondary">Открыть карточку</a>
+        <a asp-action="Issues" class="btn btn-outline-secondary">К проблемным объектам</a>
+    </div>
+</section>
+
+<section class="surface-card">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">@Model.Name</h2>
+            <div class="surface-card-subtitle">Инвентарный номер: @Model.InventoryNumber</div>
+        </div>
+    </div>
+
+    <form method="post" class="row g-3">
+        @Html.AntiForgeryToken()
+        <input asp-for="EquipmentId" type="hidden" />
+        <input asp-for="InventoryNumber" type="hidden" />
+        <input asp-for="Name" type="hidden" />
+        <input asp-for="CurrentResponsiblePerson" type="hidden" />
+        <input asp-for="ReturnUrl" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-12">
+            <label class="form-label">Текущее ответственное лицо</label>
+            <div class="form-control-plaintext fw-semibold">@Model.DisplayCurrentResponsiblePerson</div>
+        </div>
+
+        <div class="col-lg-7">
+            <label asp-for="ResponsiblePerson" class="form-label"></label>
+            <input asp-for="ResponsiblePerson" class="form-control" placeholder="Например: Иванов И.И." />
+            <span asp-validation-for="ResponsiblePerson" class="text-danger"></span>
+        </div>
+
+        <div class="col-lg-5">
+            <label asp-for="Comment" class="form-label"></label>
+            <input asp-for="Comment" class="form-control" placeholder="Причина смены ответственного" />
+            <span asp-validation-for="Comment" class="text-danger"></span>
+        </div>
+
+        <div class="col-12 d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
+            {
+                <a href="@Model.ReturnUrl" class="btn btn-outline-secondary">Назад</a>
+            }
+            else
+            {
+                <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-outline-secondary">Отмена</a>
+            }
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

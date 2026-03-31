@@ -1,0 +1,29 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Inventory.InventoryCheckViewModel
+
+<input asp-for="SessionId" type="hidden" />
+<input asp-for="EquipmentId" type="hidden" />
+<input asp-for="InventoryNumber" type="hidden" />
+<input asp-for="Name" type="hidden" />
+<input asp-for="ExpectedLocationName" type="hidden" />
+<input asp-for="EquipmentStatusName" type="hidden" />
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsFound" class="form-check-input" />
+    <label asp-for="IsFound" class="form-check-label"></label>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ActualLocationId" class="form-label"></label>
+    <select asp-for="ActualLocationId" asp-items="Model.Locations" class="form-select">
+        <option value="">Указать фактическое местоположение</option>
+    </select>
+    <span asp-validation-for="ActualLocationId" class="text-danger"></span>
+</div>
+
+<div class="mb-4">
+    <label asp-for="ConditionComment" class="form-label"></label>
+    <textarea asp-for="ConditionComment" class="form-control" rows="4" placeholder="Например: найдено в другой аудитории или требуется диагностика"></textarea>
+    <span asp-validation-for="ConditionComment" class="text-danger"></span>
+</div>

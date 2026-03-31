@@ -1,0 +1,28 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Inventory.InventoryCheckViewModel
+
+@{
+    ViewData["Title"] = "Проверка оборудования";
+}
+
+<partial name="_EditorShell"
+         model="Model"
+         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+         {
+             ["PageTitle"] = "Проверка оборудования",
+             ["IntroText"] = "Подтвердите наличие оборудования и при необходимости укажите фактическое местоположение или комментарий.",
+             ["BackAction"] = "Details",
+             ["BackRouteId"] = Model.SessionId,
+             ["SectionTitle"] = "Результат проверки",
+             ["SectionSubtitle"] = "Фиксируйте только фактическое состояние объекта на момент обхода.",
+             ["FormAction"] = "Check",
+             ["BeforeFormPartial"] = "_InventoryCheckSummary",
+             ["FormPartial"] = "_InventoryCheckFields",
+             ["SubmitText"] = "Сохранить результат",
+             ["CancelAction"] = "Details",
+             ["CancelRouteId"] = Model.SessionId,
+             ["CancelText"] = "Отмена"
+         }' />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

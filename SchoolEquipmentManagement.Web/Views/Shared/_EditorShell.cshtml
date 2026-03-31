@@ -1,0 +1,71 @@
+@model object
+
+@{
+    var pageTitle = ViewData["PageTitle"] as string ?? "Форма";
+    var introText = ViewData["IntroText"] as string ?? string.Empty;
+    var backAction = ViewData["BackAction"] as string ?? "Index";
+    var sectionTitle = ViewData["SectionTitle"] as string ?? "Данные";
+    var sectionSubtitle = ViewData["SectionSubtitle"] as string ?? string.Empty;
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+    var formEnctype = ViewData["FormEnctype"] as string;
+    var submitText = ViewData["SubmitText"] as string ?? "Сохранить";
+    var cancelAction = ViewData["CancelAction"] as string ?? backAction;
+    var cancelText = ViewData["CancelText"] as string ?? "Отмена";
+    var formPartial = ViewData["FormPartial"] as string ?? string.Empty;
+    var beforeFormPartial = ViewData["BeforeFormPartial"] as string;
+    var hiddenFieldsPartial = ViewData["HiddenFieldsPartial"] as string;
+    var backRouteId = ViewData["BackRouteId"];
+    var cancelRouteId = ViewData["CancelRouteId"];
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">@pageTitle</h1>
+    <p class="page-intro">@introText</p>
+    <div class="hero-actions">
+        @if (backRouteId is null)
+        {
+            <a asp-action="@backAction" class="btn btn-outline-secondary">Назад</a>
+        }
+        else
+        {
+            <a asp-action="@backAction" asp-route-id="@backRouteId" class="btn btn-outline-secondary">Назад</a>
+        }
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(beforeFormPartial))
+{
+    @await Html.PartialAsync(beforeFormPartial, Model, ViewData)
+}
+
+<section class="surface-card">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">@sectionTitle</h2>
+            <div class="surface-card-subtitle">@sectionSubtitle</div>
+        </div>
+    </div>
+
+    <form asp-action="@formAction" method="post" enctype="@formEnctype" novalidate>
+        @Html.AntiForgeryToken()
+
+        @if (!string.IsNullOrWhiteSpace(hiddenFieldsPartial))
+        {
+            @await Html.PartialAsync(hiddenFieldsPartial, Model, ViewData)
+        }
+
+        @await Html.PartialAsync(formPartial, Model, ViewData)
+
+        <div class="mt-4 d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">@submitText</button>
+            @if (cancelRouteId is null)
+            {
+                <a asp-action="@cancelAction" class="btn btn-outline-secondary">@cancelText</a>
+            }
+            else
+            {
+                <a asp-action="@cancelAction" asp-route-id="@cancelRouteId" class="btn btn-outline-secondary">@cancelText</a>
+            }
+        </div>
+    </form>
+</section>

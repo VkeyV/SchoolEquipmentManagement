@@ -1,0 +1,221 @@
+@using System.Linq
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Карточка оборудования";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">@Model.Name</h1>
+    <p class="page-intro">Паспорт оборудования с сервисной информацией, текущим состоянием, движением объекта и полной историей изменений.</p>
+    <div class="hero-actions">
+        @if (Model.CanEdit)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редактировать</a>
+        }
+        <a asp-action="Passport" asp-route-id="@Model.Id" class="btn btn-outline-secondary" target="_blank" rel="noopener">Паспорт для печати</a>
+        <a asp-action="DownloadPassport" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Скачать PDF</a>
+        @if (!Model.IsWrittenOff && Model.CanChangeStatus)
+        {
+            <a asp-action="ChangeStatus" asp-route-id="@Model.Id" class="btn btn-outline-primary">Сменить статус</a>
+        }
+        @if (!Model.IsWrittenOff && Model.CanChangeLocation)
+        {
+            <a asp-action="ChangeLocation" asp-route-id="@Model.Id" class="btn btn-outline-primary">Переместить</a>
+        }
+        @if (!Model.IsWrittenOff && Model.CanWriteOff)
+        {
+            <a asp-action="WriteOff" asp-route-id="@Model.Id" class="btn btn-outline-danger">Списать</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">К списку</a>
+    </div>
+</section>
+
+<partial name="_OperationAlerts" />
+
+<div class="equipment-overview-grid">
+    <section class="surface-card passport-card equipment-overview-main">
+        <div class="surface-card-header">
+            <div>
+                <h2 class="surface-card-title">Паспорт оборудования</h2>
+                <div class="surface-card-subtitle">Основная идентификация объекта, учетный код и ключевые реквизиты.</div>
+            </div>
+            <div class="inline-summary">
+                <span>Инвентарный номер: <strong>@Model.InventoryNumber</strong></span>
+                <span>Тип: <strong>@Model.EquipmentType</strong></span>
+            </div>
+        </div>
+
+        <div class="passport-layout passport-layout-balanced">
+            <div class="passport-visual-stack passport-visual-stack-balanced">
+                <div class="passport-media">
+                    <img src="@Model.PhotoSource" alt="Карточка оборудования @Model.Name" />
+                </div>
+                <div class="passport-code passport-code-large">
+                    <img src="@Model.QrCodeSource" alt="QR-код объекта @Model.InventoryNumber" onerror="this.onerror=null;this.src='@Model.CodeDataUri';" />
+                </div>
+            </div>
+
+            <div class="passport-summary">
+                <div class="passport-kpis">
+                    <div class="compact-card">
+                        <span class="compact-card-label">Статус</span>
+                        <strong class="compact-card-value">@Model.Status</strong>
+                    </div>
+                    <div class="compact-card">
+                        <span class="compact-card-label">Жизненный цикл</span>
+                        <strong class="compact-card-value">@Model.LifecycleStage</strong>
+                    </div>
+                    <div class="compact-card">
+                        <span class="compact-card-label">Гарантия</span>
+                        <strong class="compact-card-value">@Model.WarrantyStatus</strong>
+                    </div>
+                </div>
+
+                <dl class="detail-list passport-detail-list">
+                    <div class="detail-item">
+                        <dt>Местоположение</dt>
+                        <dd>
+                            <a asp-controller="Locations" asp-action="Details" asp-route-id="@Model.LocationId" class="link-primary fw-semibold text-decoration-none">
+                                @Model.Location
+                            </a>
+                        </dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Ответственное лицо</dt>
+                        <dd>@Model.DisplayResponsiblePerson</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Производитель</dt>
+                        <dd>@Model.DisplayManufacturer</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Модель</dt>
+                        <dd>@Model.DisplayModel</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Серийный номер</dt>
+                        <dd>@Model.DisplaySerialNumber</dd>
+                    </div>
+                    <div class="detail-item">
+                        <dt>Последнее изменение</dt>
+                        <dd>@Model.DisplayLastChangedAt</dd>
+                    </div>
+                </dl>
+
+                <div class="passport-note">
+                    <strong>Сервисная сводка.</strong> @Model.ServiceSummary
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="surface-card equipment-overview-side">
+        <div class="surface-card-header">
+            <div>
+                <h2 class="surface-card-title">Состояние объекта</h2>
+                <div class="surface-card-subtitle">Гарантия, жизненный цикл и последнее подтверждение по инвентаризации.</div>
+            </div>
+        </div>
+
+        <partial name="_EquipmentStatusSummary" model="Model" />
+    </section>
+
+    <section class="surface-card equipment-overview-service">
+        <div class="surface-card-header">
+            <div>
+                <h2 class="surface-card-title">Сервисная информация</h2>
+                <div class="surface-card-subtitle">Закупка, ввод в эксплуатацию, гарантия, заводские реквизиты и служебное примечание.</div>
+            </div>
+        </div>
+
+        <partial name="_EquipmentServiceInfo"
+                 model="Model"
+                 view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["ShowNotes"] = true }' />
+    </section>
+</div>
+
+<section class="surface-card">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Движение объекта</h2>
+            <div class="surface-card-subtitle">Ключевые события по объекту: постановка на учет, перемещения, статусы, инвентаризация, списание.</div>
+        </div>
+    </div>
+
+    <partial name="_EquipmentMovementList"
+             model="Model"
+             view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["Variant"] = "lane", ["MaxItems"] = 6, ["EmptyMessage"] = "События жизненного цикла пока не зафиксированы." }' />
+</section>
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Полная история изменений</h2>
+            <div class="surface-card-subtitle">Показаны записи @Model.HistoryStartItem-@Model.HistoryEndItem из @Model.HistoryTotalCount.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Последнее изменение: <strong>@Model.DisplayLastChangedAt</strong></span>
+            <span>Кто изменил: <strong>@Model.DisplayLastChangedBy</strong></span>
+        </div>
+    </div>
+
+    @if (Model.History.Any())
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Действие</th>
+                        <th>Поле</th>
+                        <th>Старое значение</th>
+                        <th>Новое значение</th>
+                        <th>Комментарий</th>
+                        <th>Кто изменил</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.History)
+                    {
+                        <tr>
+                            <td>@item.DisplayChangedAt</td>
+                            <td><span class="badge @item.BadgeClass">@item.ActionType</span></td>
+                            <td>@item.DisplayChangedField</td>
+                            <td>@item.DisplayOldValue</td>
+                            <td>@item.DisplayNewValue</td>
+                            <td>@item.DisplayComment</td>
+                            <td>@item.DisplayChangedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.HistoryTotalPages > 1)
+        {
+            <nav class="mt-4" aria-label="Навигация по истории изменений">
+                <ul class="pagination mb-0">
+                    <li class="page-item @(Model.IsFirstHistoryPage ? "disabled" : null)">
+                        <a class="page-link" asp-action="Details" asp-route-id="@Model.Id" asp-route-historyPage="@Model.PreviousHistoryPage">Назад</a>
+                    </li>
+
+                    @for (var currentPage = 1; currentPage <= Model.HistoryTotalPages; currentPage++)
+                    {
+                        <li class="page-item @(currentPage == Model.HistoryPage ? "active" : null)">
+                            <a class="page-link" asp-action="Details" asp-route-id="@Model.Id" asp-route-historyPage="@currentPage">@currentPage</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.IsLastHistoryPage ? "disabled" : null)">
+                        <a class="page-link" asp-action="Details" asp-route-id="@Model.Id" asp-route-historyPage="@Model.NextHistoryPage">Вперёд</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="text-muted">История изменений пока отсутствует.</div>
+    }
+</section>

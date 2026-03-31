@@ -1,0 +1,120 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentImportViewModel
+
+@{
+    ViewData["Title"] = "Импорт оборудования";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Импорт оборудования</h1>
+    <p class="page-intro">Загрузите CSV-файл, проверьте строки перед применением и только после этого выполните импорт в реестр.</p>
+    <div class="hero-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary">К реестру</a>
+    </div>
+</section>
+
+<div class="alert alert-warning">
+    Используйте CSV-файл с разделителем <strong>;</strong>. Обязательные колонки:
+    <code>InventoryNumber;Name;EquipmentType;Status;Location</code>.
+</div>
+
+<section class="surface-card mb-4">
+    <form asp-action="Import" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="File" class="form-label">CSV-файл</label>
+            <input asp-for="File" type="file" class="form-control" accept=".csv" />
+            <span asp-validation-for="File" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary">Загрузить и проверить</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+        </div>
+    </form>
+</section>
+
+@if (Model.HasPreview)
+{
+    <section class="surface-card mb-4">
+        <div class="inline-summary">
+            <span>Всего строк: <strong>@Model.TotalRows</strong></span>
+            <span>Корректных: <strong>@Model.ValidRows</strong></span>
+            <span>С ошибками: <strong>@Model.InvalidRows</strong></span>
+        </div>
+    </section>
+
+    @if (Model.ValidRows > 0 && Model.InvalidRows == 0)
+    {
+        <form asp-action="ApplyImport" method="post" class="mb-3">
+            @Html.AntiForgeryToken()
+            <input asp-for="PayloadJson" type="hidden" />
+            <input asp-for="HasPreview" type="hidden" />
+            <button type="submit" class="btn btn-success">Применить импорт</button>
+        </form>
+    }
+    else if (Model.ValidRows > 0)
+    {
+        <div class="alert alert-warning">
+            Импорт можно применить только после исправления ошибок в файле. Сейчас найдены некорректные строки.
+        </div>
+    }
+
+    <section class="table-shell">
+        <div class="surface-card-header">
+            <div>
+                <h2 class="surface-card-title">Предпросмотр импорта</h2>
+                <div class="surface-card-subtitle">Проверьте строки перед применением изменений в реестр.</div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Инвентарный номер</th>
+                            <th>Наименование</th>
+                            <th>Тип</th>
+                            <th>Статус</th>
+                            <th>Местоположение</th>
+                            <th>Результат проверки</th>
+                        </tr>
+                </thead>
+                <tbody>
+                        @foreach (var row in Model.PreviewRows)
+                        {
+                            <tr>
+                                <td>@row.RowNumber</td>
+                                <td>@row.InventoryNumber</td>
+                                <td>@row.Name</td>
+                                <td>@row.EquipmentTypeName</td>
+                                <td>@row.StatusName</td>
+                                <td>@row.LocationName</td>
+                                <td>
+                                    @if (row.IsValid)
+                                    {
+                                        <span class="badge bg-success text-white">Готово к импорту</span>
+                                    }
+                                    else
+                                    {
+                                        <div class="badge bg-danger text-white mb-2">Ошибка</div>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach (var error in row.Errors)
+                                            {
+                                                <li>@error</li>
+                                            }
+                                        </ul>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

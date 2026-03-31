@@ -1,0 +1,116 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentDetailsViewModel
+
+@{
+    Layout = null;
+    var generatedAt = DateTime.Now;
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Паспорт оборудования</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="passport-print-page">
+    <div class="passport-toolbar">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Вернуться в карточку</a>
+        <a asp-action="DownloadPassport" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Скачать PDF</a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Печать паспорта</button>
+    </div>
+
+    <main class="passport-sheet">
+        <section class="passport-sheet-header">
+            <div>
+                <div class="passport-sheet-eyebrow">Учет IT-оборудования</div>
+                <h1>Паспорт оборудования</h1>
+                <p>@Model.Name</p>
+            </div>
+            <div class="passport-sheet-meta">
+                <span>Инвентарный номер</span>
+                <strong>@Model.InventoryNumber</strong>
+                <small>Сформировано @generatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+            </div>
+        </section>
+
+        <section class="passport-sheet-grid">
+            <article class="passport-sheet-card passport-sheet-card-wide">
+                <div class="passport-layout passport-layout-print">
+                    <div class="passport-visual-stack">
+                        <div class="passport-media">
+                            <img src="@Model.PhotoSource" alt="Карточка оборудования @Model.Name" />
+                        </div>
+                        <div class="passport-code">
+                            <img src="@Model.QrCodeSource" alt="QR-код объекта @Model.InventoryNumber" onerror="this.onerror=null;this.src='@Model.CodeDataUri';" />
+                        </div>
+                    </div>
+                    <div class="passport-summary">
+                        <div class="passport-kpis">
+                            <div class="compact-card">
+                                <span class="compact-card-label">Статус</span>
+                                <strong class="compact-card-value">@Model.Status</strong>
+                            </div>
+                            <div class="compact-card">
+                                <span class="compact-card-label">Жизненный цикл</span>
+                                <strong class="compact-card-value">@Model.LifecycleStage</strong>
+                            </div>
+                            <div class="compact-card">
+                                <span class="compact-card-label">Гарантия</span>
+                                <strong class="compact-card-value">@Model.WarrantyStatus</strong>
+                            </div>
+                        </div>
+
+                        <dl class="detail-list passport-detail-list">
+                            <div class="detail-item">
+                                <dt>Тип оборудования</dt>
+                                <dd>@Model.EquipmentType</dd>
+                            </div>
+                            <div class="detail-item">
+                                <dt>Местоположение</dt>
+                                <dd>@Model.Location</dd>
+                            </div>
+                            <div class="detail-item">
+                                <dt>Ответственное лицо</dt>
+                                <dd>@Model.DisplayResponsiblePerson</dd>
+                            </div>
+                            <div class="detail-item">
+                                <dt>Последнее изменение</dt>
+                                <dd>@Model.DisplayLastChangedAt</dd>
+                            </div>
+                        </dl>
+
+                        <div class="passport-note">
+                            <strong>Сервисная сводка.</strong> @Model.ServiceSummary
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="passport-sheet-card">
+                <h2>Сервисная информация</h2>
+                <partial name="_EquipmentServiceInfo"
+                         model="Model"
+                         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["ShowNotes"] = false }' />
+            </article>
+
+            <article class="passport-sheet-card">
+                <h2>Состояние объекта</h2>
+                <partial name="_EquipmentStatusSummary" model="Model" />
+            </article>
+
+            <article class="passport-sheet-card passport-sheet-card-wide">
+                <h2>Движение объекта</h2>
+                <partial name="_EquipmentMovementList"
+                         model="Model"
+                         view-data='new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData) { ["Variant"] = "timeline", ["MaxItems"] = 8, ["EmptyMessage"] = "События движения пока не зафиксированы." }' />
+            </article>
+
+            <article class="passport-sheet-card passport-sheet-card-wide">
+                <h2>Примечание</h2>
+                <p class="passport-plain-text">@Model.DisplayNotes</p>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

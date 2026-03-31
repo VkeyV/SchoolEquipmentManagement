@@ -1,0 +1,94 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Inventory.InventorySessionDetailsViewModel
+
+@{
+    ViewData["Title"] = "Сессия инвентаризации";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">@Model.Name</h1>
+    <p class="page-intro">Просмотр результатов проверки оборудования и переход к фиксации по каждому объекту.</p>
+    <div class="hero-actions">
+        @if (Model.CanManageSession && Model.CanStart)
+        {
+            <form asp-action="Start" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary">Запустить</button>
+            </form>
+        }
+        @if (Model.CanManageSession && Model.CanComplete)
+        {
+            <form asp-action="Complete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-outline-primary" onclick="return confirm('Завершить сессию инвентаризации? После этого изменение результатов будет недоступно.');">Завершить</button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">К списку</a>
+    </div>
+</section>
+
+<partial name="_OperationAlerts" />
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Оборудование в сессии</h2>
+            <div class="surface-card-subtitle">Результаты проверки, фактическое местоположение и комментарии.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Статус: <span class="badge @Model.StatusBadgeClass">@Model.Status</span></span>
+            <span>Всего: <strong>@Model.TotalEquipmentCount</strong></span>
+            <span>Проверено: <strong>@Model.CheckedCount</strong></span>
+            <span>Не найдено: <strong>@Model.MissingCount</strong></span>
+            <span>Расхождения: <strong>@Model.DiscrepancyCount</strong></span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Инвентарный номер</th>
+                    <th>Наименование</th>
+                    <th>Тип</th>
+                    <th>Ожидаемое местоположение</th>
+                    <th>Результат</th>
+                    <th>Комментарий</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.EquipmentItems)
+                {
+                    <tr>
+                        <td class="fw-semibold">@item.InventoryNumber</td>
+                        <td>@item.Name</td>
+                        <td>@item.EquipmentTypeName</td>
+                        <td>
+                            <div>@item.ExpectedLocationName</div>
+                            @if (item.HasActualLocationNote)
+                            {
+                                <div class="text-muted small">Факт: @item.ActualLocationName</div>
+                            }
+                        </td>
+                        <td><span class="badge @item.ResultBadgeClass">@item.ResultText</span></td>
+                        <td>@item.DisplayConditionComment</td>
+                        <td class="text-center">
+                            @if (Model.IsReadOnly || !Model.CanCheckInventory)
+                            {
+                                <span class="text-muted">Просмотр</span>
+                            }
+                            else
+                            {
+                                <a asp-action="Check" asp-route-sessionId="@Model.Id" asp-route-equipmentId="@item.EquipmentId" class="btn btn-sm btn-outline-primary">
+                                    @item.CheckActionText
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,52 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentWriteOffViewModel
+
+@{
+    ViewData["Title"] = "Списание оборудования";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Списание оборудования</h1>
+    <p class="page-intro">После списания объект останется в системе, но будет переведен в статус «Списано».</p>
+    <div class="hero-actions">
+        <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-outline-secondary">К карточке</a>
+    </div>
+</section>
+
+<div class="alert alert-warning">
+    Используйте это действие только для оборудования, которое окончательно выведено из эксплуатации.
+</div>
+
+<section class="surface-card mb-3">
+    <div class="inline-summary">
+        <span>Инвентарный номер: <strong>@Model.InventoryNumber</strong></span>
+        <span>Наименование: <strong>@Model.Name</strong></span>
+        <span>Текущий статус: <strong>@Model.CurrentStatus</strong></span>
+    </div>
+</section>
+
+<section class="surface-card">
+    <form asp-action="WriteOff" method="post" novalidate>
+        @Html.AntiForgeryToken()
+        <input asp-for="EquipmentId" type="hidden" />
+        <input asp-for="InventoryNumber" type="hidden" />
+        <input asp-for="Name" type="hidden" />
+        <input asp-for="CurrentStatus" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-4">
+            <label asp-for="Comment" class="form-label"></label>
+            <textarea asp-for="Comment" class="form-control" rows="4" placeholder="Например: морально устарело или не подлежит ремонту"></textarea>
+            <span asp-validation-for="Comment" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-danger">Списать оборудование</button>
+            <a asp-action="Details" asp-route-id="@Model.EquipmentId" class="btn btn-outline-secondary">Отмена</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

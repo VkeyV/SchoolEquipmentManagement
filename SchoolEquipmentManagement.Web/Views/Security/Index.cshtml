@@ -1,0 +1,98 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Security.SecurityAuditIndexViewModel
+
+@{
+    ViewData["Title"] = "Аудит и безопасность";
+}
+
+<section class="hero-panel">
+    <h1 class="display-title">Аудит и безопасность</h1>
+    <p class="page-intro">Журналируйте входы, ошибки авторизации, 2FA, восстановление доступа и администраторские изменения учетных записей в одном месте.</p>
+</section>
+
+<section class="surface-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-lg-6">
+            <label asp-for="Search" class="form-label">Поиск по пользователю, IP или описанию</label>
+            <input asp-for="Search" class="form-control" placeholder="Например, admin или 127.0.0.1" />
+        </div>
+        <div class="col-lg-3">
+            <div class="form-check form-switch mt-4 pt-2">
+                <input asp-for="FailuresOnly" class="form-check-input" />
+                <label asp-for="FailuresOnly" class="form-check-label">Только ошибки и блокировки</label>
+            </div>
+        </div>
+        <div class="col-lg-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Применить</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Сбросить</a>
+        </div>
+    </form>
+</section>
+
+<section class="surface-card mb-4">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Сводка журнала</h2>
+            <div class="surface-card-subtitle">Показываются последние события безопасности с учетом текущего фильтра.</div>
+        </div>
+        <div class="inline-summary">
+            <span>Всего: <strong>@Model.TotalCount</strong></span>
+            <span>Успешно: <strong>@Model.SuccessCount</strong></span>
+            <span>Ошибки: <strong>@Model.FailureCount</strong></span>
+        </div>
+    </div>
+</section>
+
+<section class="table-shell">
+    <div class="surface-card-header">
+        <div>
+            <h2 class="surface-card-title">Журнал событий</h2>
+            <div class="surface-card-subtitle">Время, тип события, участники и технический контекст запроса.</div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Когда</th>
+                    <th>Событие</th>
+                    <th>Результат</th>
+                    <th>Пользователь</th>
+                    <th>Цель</th>
+                    <th>IP</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.OccurredAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</td>
+                            <td class="fw-semibold">@item.EventDisplayName</td>
+                            <td>
+                                <span class="badge @(item.IsSuccessful ? "text-bg-success" : "text-bg-danger")">
+                                    @(item.IsSuccessful ? "Успешно" : "Ошибка")
+                                </span>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(item.UserName) ? "Не определен" : item.UserName)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.TargetUserName) ? "Не указана" : item.TargetUserName)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.IpAddress) ? "Не указан" : item.IpAddress)</td>
+                            <td title="@item.UserAgent">@item.Summary</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="fw-semibold mb-2">События не найдены</div>
+                            <div class="text-muted">Измените фильтры или выполните действия в системе, чтобы журнал начал наполняться.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

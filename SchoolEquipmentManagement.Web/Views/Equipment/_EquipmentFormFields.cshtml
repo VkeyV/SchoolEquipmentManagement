@@ -1,0 +1,107 @@
+@model SchoolEquipmentManagement.Web.ViewModels.Equipment.EquipmentCreateViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="InventoryNumber" class="form-label"></label>
+        <input asp-for="InventoryNumber" class="form-control" placeholder="Например, INV-2048" />
+        <span asp-validation-for="InventoryNumber" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" placeholder="Введите наименование оборудования" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="EquipmentTypeId" class="form-label"></label>
+        <select asp-for="EquipmentTypeId" asp-items="Model.EquipmentTypes" class="form-select">
+            <option value="">Выберите тип</option>
+        </select>
+        <span asp-validation-for="EquipmentTypeId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="EquipmentStatusId" class="form-label"></label>
+        <select asp-for="EquipmentStatusId" asp-items="Model.EquipmentStatuses" class="form-select">
+            <option value="">Выберите статус</option>
+        </select>
+        <span asp-validation-for="EquipmentStatusId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" asp-items="Model.Locations" class="form-select">
+            <option value="">Выберите местоположение</option>
+        </select>
+        <span asp-validation-for="LocationId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="SerialNumber" class="form-label"></label>
+        <input asp-for="SerialNumber" class="form-control" placeholder="Серийный номер" />
+        <span asp-validation-for="SerialNumber" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Manufacturer" class="form-label"></label>
+        <input asp-for="Manufacturer" class="form-control" placeholder="Производитель" />
+        <span asp-validation-for="Manufacturer" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Model" class="form-label"></label>
+        <input asp-for="Model" class="form-control" placeholder="Модель" />
+        <span asp-validation-for="Model" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="PurchaseDate" class="form-label"></label>
+        <input asp-for="PurchaseDate" type="date" class="form-control" />
+        <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="CommissioningDate" class="form-label"></label>
+        <input asp-for="CommissioningDate" type="date" class="form-control" />
+        <span asp-validation-for="CommissioningDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="WarrantyEndDate" class="form-label"></label>
+        <input asp-for="WarrantyEndDate" type="date" class="form-control" />
+        <span asp-validation-for="WarrantyEndDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ResponsiblePerson" class="form-label"></label>
+        <input asp-for="ResponsiblePerson" class="form-control" placeholder="Ответственное лицо" />
+        <span asp-validation-for="ResponsiblePerson" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Photo" class="form-label"></label>
+        <input asp-for="Photo" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp" />
+        <div class="form-text">Поддерживаются файлы JPG, PNG и WEBP до 5 МБ.</div>
+        <span asp-validation-for="Photo" class="text-danger"></span>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ExistingPhotoUrl))
+        {
+            <div class="form-photo-preview mt-3">
+                <img src="@Model.ExistingPhotoUrl" alt="Текущее фото оборудования" />
+            </div>
+            <div class="form-check mt-2">
+                <input asp-for="RemovePhoto" class="form-check-input" />
+                <label asp-for="RemovePhoto" class="form-check-label">Удалить текущее фото</label>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="5" placeholder="Дополнительная информация по оборудованию"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+</div>
