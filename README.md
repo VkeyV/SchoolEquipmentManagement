@@ -100,22 +100,6 @@ dotnet run --project .\SchoolEquipmentManagement.Web\SchoolEquipmentManagement.W
 - `responsible / Responsible123!`
 - `viewer / Viewer123!`
 
-## Email и 2FA
-
-Настройки почты находятся в:
-
-- [appsettings.json]
-- [appsettings.Development.json]
-
-Ключевые параметры:
-
-- `Email.Enabled`
-- `Email.SmtpHost`
-- `Email.SmtpPort`
-- `Email.UseSsl`
-- `Email.UserName`
-- `Email.Password`
-
 ## Импорт CSV
 
 Готовые примеры файлов лежат в [docs\sample-data]
